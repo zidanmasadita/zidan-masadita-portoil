@@ -15,6 +15,7 @@ import lottieGames from "../public/lottie-assets/games.json";
 import lottieReward from "../public/lottie-assets/reward.json";
 import lottieGlobe from "../public/lottie-assets/globe.json";
 import lottieTech from "../public/lottie-assets/tech.json";
+import zidanBg from "../public/zidan-bg.png";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -347,11 +348,10 @@ export default function Home() {
         <div className="about-box rv">
           <div className="about-box-visual">
             <Image
-              src="/zidan-bg.png"
+              src={zidanBg}
               alt="Zidan using mobile app"
-              width={420}
-              height={420}
-              style={{ width: "100%", maxWidth: 420, height: "auto" }}
+              priority
+              style={{ width: "100%", height: "auto", maxWidth: "420px", objectFit: "contain" }}
               className="about-parallax-img"
             />
           </div>
@@ -366,7 +366,7 @@ export default function Home() {
               Using Flutter, I build clean, scalable, and high-performance applications with a strong focus on usability, design, and long-term maintainability.
             </p>
             <a href="#contact" className="about-cta" id="about-learn-more">
-              Learn more
+              Let's Connect
             </a>
           </div>
         </div>
@@ -505,16 +505,16 @@ export default function Home() {
             </h3>
             <div className="badges-grid rv">
               <div className="badge-wrapper">
-                <Image src="/Eco-Starter Badge.png" alt="Eco-Starter Unlocked" fill className="badge-img unlocked" />
-                <Image src="/Eco-Starter Locked Badge.png" alt="Eco-Starter Locked" fill className="badge-img locked" />
+                <Image src="/Eco-Starter Badge.png" alt="Eco-Starter Unlocked" fill sizes="180px" className="badge-img unlocked" />
+                <Image src="/Eco-Starter Locked Badge.png" alt="Eco-Starter Locked" fill sizes="180px" className="badge-img locked" />
               </div>
               <div className="badge-wrapper">
-                <Image src="/Eco-Hero Badge.png" alt="Eco-Hero Unlocked" fill className="badge-img unlocked" />
-                <Image src="/Eco-Hero Locked Badge.png" alt="Eco-Hero Locked" fill className="badge-img locked" />
+                <Image src="/Eco-Hero Badge.png" alt="Eco-Hero Unlocked" fill sizes="180px" className="badge-img unlocked" />
+                <Image src="/Eco-Hero Locked Badge.png" alt="Eco-Hero Locked" fill sizes="180px" className="badge-img locked" />
               </div>
               <div className="badge-wrapper">
-                <Image src="/Eco-Champion Badge.png" alt="Eco-Champion Unlocked" fill className="badge-img unlocked" />
-                <Image src="/Eco-Champion Locked Badge.png" alt="Eco-Champion Locked" fill className="badge-img locked" />
+                <Image src="/Eco-Champion Badge.png" alt="Eco-Champion Unlocked" fill sizes="180px" className="badge-img unlocked" />
+                <Image src="/Eco-Champion Locked Badge.png" alt="Eco-Champion Locked" fill sizes="180px" className="badge-img locked" />
               </div>
             </div>
           </div>
