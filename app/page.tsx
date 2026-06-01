@@ -1,0 +1,586 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import dynamic from 'next/dynamic';
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+
+import lottieAi from "../public/lottie-assets/ai.json";
+import lottieInventory from "../public/lottie-assets/inventory.json";
+import lottieRecycle from "../public/lottie-assets/recycle.json";
+import lottieGames from "../public/lottie-assets/games.json";
+import lottieReward from "../public/lottie-assets/reward.json";
+import lottieGlobe from "../public/lottie-assets/globe.json";
+import lottieTech from "../public/lottie-assets/tech.json";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+const STICKERS = [
+  // name, css-width, left%, top%, initial-rotation, parallax-speed, parallax-direction
+  { src: "/stickers/carrot.png", w: 160, l: 2, t: 6, r: -15, spd: 0.3, dir: 1 },
+  { src: "/stickers/broccoli.png", w: 160, l: 82, t: 3, r: 12, spd: 0.45, dir: -1 },
+  { src: "/stickers/apple.png", w: 180, l: 90, t: 35, r: 20, spd: 0.25, dir: 1 },
+  { src: "/stickers/avocado.png", w: 220, l: 1, t: 45, r: -10, spd: 0.35, dir: -1 },
+  { src: "/stickers/strawberry.png", w: 220, l: 75, t: 65, r: 18, spd: 0.2, dir: 1 },
+  { src: "/stickers/lemon.png", w: 180, l: 10, t: 72, r: -22, spd: 0.4, dir: -1 },
+  { src: "/stickers/tomato.png", w: 95, l: 55, t: 2, r: 15, spd: 0.3, dir: 1 },
+  { src: "/stickers/corn.png", w: 220, l: 35, t: 80, r: -8, spd: 0.5, dir: -1 },
+  { src: "/stickers/pepper.png", w: 180, l: 65, t: 85, r: 25, spd: 0.28, dir: 1 },
+  // duplicates at different positions for density
+  { src: "/stickers/carrot.png", w: 75, l: 42, t: 10, r: 30, spd: 0.35, dir: -1 },
+  { src: "/stickers/lemon.png", w: 70, l: 25, t: 18, r: -18, spd: 0.22, dir: 1 },
+  { src: "/stickers/strawberry.png", w: 65, l: 88, t: 50, r: 14, spd: 0.38, dir: -1 },
+  { src: "/stickers/avocado.png", w: 80, l: 48, t: 55, r: -25, spd: 0.32, dir: 1 },
+  { src: "/stickers/tomato.png", w: 70, l: 15, t: 90, r: 20, spd: 0.42, dir: -1 },
+  { src: "/stickers/broccoli.png", w: 65, l: 72, t: 42, r: -12, spd: 0.26, dir: 1 },
+  { src: "/stickers/corn.png", w: 75, l: 5, t: 30, r: 16, spd: 0.44, dir: -1 },
+  { src: "/stickers/pepper.png", w: 60, l: 30, t: 60, r: -20, spd: 0.3, dir: 1 },
+  { src: "/stickers/apple.png", w: 180, l: 60, t: 20, r: 22, spd: 0.48, dir: -1 },
+];
+
+const TICKER = [
+  "Mobile Dev", "HomeCycle", "Flutter",
+  "Firebase", "Eco-Tech", "UI/UX",
+];
+
+const SKILLS = [
+  "Flutter", "Figma", "SQLite",
+  "Git & GitHub", "TensorFlow Lite", "FastAPI", "Python"
+];
+
+const FEATURES = [
+  { lottie: lottieAi, text: "Use AI to automatically track product expiration dates" },
+  { lottie: lottieInventory, text: "Manage your household food inventory more effectively" },
+  { lottie: lottieRecycle, text: "Reduce household food waste with proactive tracking" },
+  { lottie: lottieGames, text: "Complete gamified challenges to earn unique badges" },
+  { lottie: lottieReward, text: "Collect points and redeem them for vouchers" },
+  { lottie: lottieGlobe, text: "Make more sustainable consumption decisions every day" },
+];
+
+function Preloader() {
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setHidden(true), 1800);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div id="preloader" className={hidden ? "hidden" : ""}>
+      <div className="loader-logo" style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+        <Image src="/logo-bg.png" alt="HomeCycle Logo" width={80} height={80} style={{ borderRadius: "20px" }} priority />
+        HomeCycle
+      </div>
+    </div>
+  );
+}
+
+function Header({ scrolled }: { scrolled: boolean }) {
+  return (
+    <header className={`header ${scrolled ? "scrolled" : ""}`} id="main-header">
+      <a href="#hero" className="header-logo">
+        Zidan <span>Masadita</span><span>.</span>
+      </a>
+      <ul className="header-nav">
+        <li><a href="#about">About</a></li>
+        <li><a href="#homecycle">HomeCycle</a></li>
+      </ul>
+    </header>
+  );
+}
+
+/* BANNER STICKERS (Small) */
+function BannerStickers() {
+  const refs = useRef<(HTMLImageElement | null)[]>([]);
+  const smallStickers = STICKERS.filter(s => s.w < 180);
+
+  useEffect(() => {
+    let ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: ".banner",
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+        onUpdate: (self) => {
+          const p = self.progress;
+          refs.current.forEach((el, i) => {
+            if (!el) return;
+            const s = smallStickers[i];
+            const rot = s.r + p * 180 * s.dir;
+            const yShift = p * -320 * s.spd;
+            gsap.set(el, { y: yShift, rotation: rot });
+          });
+        },
+      });
+    });
+
+    return () => ctx.revert();
+  }, [smallStickers]);
+
+  return (
+    <>
+      {smallStickers.map((s, i) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={i}
+          ref={(el) => { refs.current[i] = el; }}
+          src={s.src}
+          alt=""
+          className="banner-sticker"
+          style={{
+            width: `${s.w}px`,
+            left: `${s.l}%`,
+            top: `${s.t}%`,
+            transform: `rotate(${s.r}deg)`,
+          }}
+          loading="lazy"
+          draggable={false}
+        />
+      ))}
+    </>
+  );
+}
+
+/* GLOBAL STICKERS (Large) */
+function GlobalStickers() {
+  const refs = useRef<(HTMLImageElement | null)[]>([]);
+  const largeStickers = STICKERS.filter(s => s.w >= 180);
+
+  useEffect(() => {
+    let ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: document.documentElement,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: (self) => {
+          const p = self.progress;
+          refs.current.forEach((el, i) => {
+            if (!el) return;
+            const s = largeStickers[i];
+            const yShift = p * window.innerHeight * 1.5 * s.spd * s.dir;
+            gsap.set(el, { y: yShift });
+          });
+        },
+      });
+    });
+
+    return () => ctx.revert();
+  }, [largeStickers]);
+
+  return (
+    <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100vh", pointerEvents: "none", zIndex: -1 }}>
+      {largeStickers.map((s, i) => (
+        <div
+          key={i}
+          ref={(el) => { refs.current[i] = el as unknown as HTMLImageElement; }}
+          style={{
+            position: "absolute",
+            width: `${s.w}px`,
+            left: `${s.l}%`,
+            top: `${s.t}%`,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={s.src}
+            alt=""
+            className={`banner-sticker ${s.dir > 0 ? 'spin-slow' : 'spin-slow-reverse'}`}
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "auto",
+              transform: `rotate(${s.r}deg)`, // Initial offset rotation
+            }}
+            loading="lazy"
+            draggable={false}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* TICKER */
+function TickerBar() {
+  const items = [...TICKER, ...TICKER, ...TICKER];
+  return (
+    <div style={{ background: "#74a830", padding: "14px 0", overflow: "hidden" }} aria-hidden="true">
+      <div className="ticker-track" style={{ display: "flex", whiteSpace: "nowrap", animation: "tickerScroll 20s linear infinite", width: "max-content" }}>
+        {items.map((t, i) => (
+          <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 18, padding: "0 26px", fontWeight: 800, fontSize: ".88rem", color: "#fff", letterSpacing: "1px", textTransform: "uppercase" as const }}>
+            <span style={{ width: 6, height: 6, background: "rgba(255,255,255,.45)", borderRadius: "50%", flexShrink: 0 }} />
+            {t}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* MAIN PAGE */
+export default function Home() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", h, { passive: true });
+
+    let ctx = gsap.context(() => {
+      // Hero text staggered reveal
+      gsap.fromTo(".banner-title",
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.2 }
+      );
+      gsap.fromTo(".banner-subtitle",
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.4 }
+      );
+
+      gsap.fromTo(".about-parallax-img",
+        { y: -150, rotation: -12, scale: 0.85 },
+        {
+          y: 150,
+          rotation: 8,
+          scale: 1.15,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".about-section",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.2
+          }
+        }
+      );
+      const discoverTrack = document.querySelector(".slider-track") as HTMLElement;
+      if (discoverTrack) {
+        gsap.to(discoverTrack, {
+          x: () => -(discoverTrack.scrollWidth - window.innerWidth + 80),
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".discover-section",
+            pin: true,
+            scrub: 1,
+            start: "center center",
+            end: () => `+=${discoverTrack.scrollWidth - window.innerWidth + 80}`,
+            invalidateOnRefresh: true,
+          }
+        });
+      }
+
+      // HomeCycle horizontal scroll
+      const hcTrack = document.getElementById("homecycle-track");
+      if (hcTrack) {
+        const mm = gsap.matchMedia();
+        mm.add("(min-width: 901px)", () => {
+          gsap.to(hcTrack, {
+            x: () => -(hcTrack.scrollWidth - window.innerWidth + 100),
+            ease: "none",
+            scrollTrigger: {
+              trigger: "#homecycle",
+              pin: true,
+              scrub: 1,
+              start: "center center",
+              end: () => `+=${hcTrack.scrollWidth - window.innerWidth + 100}`,
+              invalidateOnRefresh: true,
+            }
+          });
+        });
+      }
+
+      // Scroll Reveal Batch (Run this LAST so markers account for pins)
+      ScrollTrigger.batch(".rv, .rv-l, .rv-r", {
+        onEnter: (elements) => elements.forEach((e) => e.classList.add("in")),
+        start: "top 85%",
+      });
+
+      // Force GSAP to recalculate all triggers in the correct order
+      ScrollTrigger.refresh();
+    });
+
+    return () => {
+      window.removeEventListener("scroll", h);
+      ctx.revert();
+    };
+  }, []);
+
+  return (
+    <>
+      {/* Global Background Layer */}
+      <div style={{ position: "fixed", inset: 0, background: "var(--cream)", zIndex: -2, pointerEvents: "none" }} />
+
+      <Preloader />
+      <Header scrolled={scrolled} />
+
+      {/* BANNER */}
+      <section id="hero" className="banner" style={{ zIndex: 1, position: "relative" }}>
+        <BannerStickers />
+
+        <div className="banner-content">
+          <h1 className="banner-title">
+            Hi, I&apos;m <span className="hl">Zidan</span>
+          </h1>
+          <p className="banner-subtitle">
+            Mobile developer &amp; creator of <strong>HomeCycle</strong> — an
+            app that uses AI to track product expiration dates, enabling you to
+            manage food inventory and make sustainable decisions.
+          </p>
+          <a href="#homecycle" className="banner-cta" id="banner-cta">
+            Discover HomeCycle ↓
+          </a>
+        </div>
+      </section>
+
+      {/* TICKER */}
+      <div style={{ position: "relative", zIndex: 2 }}>
+        <TickerBar />
+      </div>
+
+
+      {/* ABOUT */}
+      <section id="about" className="about-section" style={{ position: "relative", zIndex: 2, background: "var(--white)" }}>
+        <div className="about-box rv">
+          <div className="about-box-visual">
+            <Image
+              src="/zidan-bg.png"
+              alt="Zidan using mobile app"
+              width={420}
+              height={420}
+              style={{ width: "100%", maxWidth: 420, height: "auto" }}
+              className="about-parallax-img"
+            />
+          </div>
+          <div className="about-box-content">
+            <h3>
+              Learning, building, and growing  <span className="hl">every day.</span>
+            </h3>
+            <p>
+              I&apos;m Zidan Masadita, a mobile developer from Indonesia who enjoys turning ideas into meaningful mobile experiences.
+            </p>
+            <p>
+              Using Flutter, I build clean, scalable, and high-performance applications with a strong focus on usability, design, and long-term maintainability.
+            </p>
+            <a href="#contact" className="about-cta" id="about-learn-more">
+              Learn more
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* SKILLS */}
+      <section className="skills-section rv" style={{ position: "relative", zIndex: 2, background: "var(--white)" }}>
+        <div className="skills-header">
+          <h2 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px" }}>
+            <Lottie animationData={lottieTech} style={{ width: 56, height: 56 }} />
+            <span style={{ color: "inherit" }}>
+              Home<span style={{ color: "var(--green)" }}>Cycle</span> Tech Stack
+            </span>
+          </h2>
+        </div>
+        <div className="skills-grid">
+          {SKILLS.map((s) => (
+            <span key={s} className="skill-pill">{s}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* DISCOVER (horizontal slider) */}
+      <section className="discover-section">
+        <div className="discover-title-wrap">
+          <h2 className="discover-title">Discover what I do</h2>
+        </div>
+        <div className="discover-subtitle-wrap">
+          <h4 className="discover-subtitle">UI/UX Designer for HomeCycle — transforming user needs into clean, engaging, and functional interfaces.</h4>
+        </div>
+        <div className="slider-track" id="discover-slider">
+          {[
+            { img: "/Dashboard.png", label: "HomeCycle Dashboard" },
+            { img: "/inventory.png", label: "HomeCycle Inventory" },
+            { img: "/badge.png", label: "HomeCycle Badge" },
+            { img: "/badge progression.png", label: "HomeCycle Badge Progression" },
+            { img: "/filter.png", label: "HomeCycle Filters" },
+            { img: "/detail item.png", label: "HomeCycle Item Details" },
+            { img: "/add-popup.png", label: "HomeCycle Add Item Pop Up" },
+            { img: "/item scanned.png", label: "HomeCycle Item Scanned" },
+            { img: "/shop.png", label: "HomeCycle Shop" },
+            { img: "/voucher detail.png", label: "HomeCycle Voucher Reward Detail" },
+          ].map((card, i) => (
+            <div key={i} className="slider-card" id={`slider-card-${i}`}>
+              <Image
+                src={card.img}
+                alt={card.label}
+                width={320}
+                height={346}
+                className="slider-card-img"
+                style={{ width: "100%", height: "auto" }}
+                priority={i === 0}
+              />
+              <div className="slider-card-label">{card.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* HOMECYCLE PROJECT */}
+      <section id="homecycle" className="project-section" style={{ zIndex: 10, position: "relative" }}>
+        <div className="project-header">
+          <span className="project-eyebrow">Featured Project</span>
+          <h2 className="project-title">Meet <span style={{ color: "inherit" }}>
+            Home<span style={{ color: "var(--green)" }}>Cycle</span>
+          </span></h2>
+        </div>
+
+        <div className="homecycle-track" id="homecycle-track">
+          {/* Col 1: Phone */}
+          <div className="homecycle-col phone-col">
+            <div className="phone-frame rv-l">
+              <div className="phone-orbit" />
+              <div className="phone-orbit phone-orbit-2" />
+              <Image
+                src="/homecycle_phone_dashboard.png"
+                alt="HomeCycle mobile app UI"
+                width={260}
+                height={520}
+                className="phone-frame-img"
+                style={{ width: "auto", height: "auto" }}
+              />
+            </div>
+          </div>
+
+          {/* Col 2: Info */}
+          <div className="homecycle-col info-col">
+            <div className="project-info rv-r">
+              <h2 className="project-name" id="homecycle-name"><span style={{ color: "inherit" }}>
+                Home<span style={{ color: "var(--green)" }}>Cycle</span>
+              </span></h2>
+              <div className="project-tagline" style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                <Lottie animationData={lottieAi} style={{ width: 24, height: 24 }} /> AI Tracking <span style={{ opacity: 0.5 }}>·</span>
+                <Lottie animationData={lottieGames} style={{ width: 24, height: 24 }} /> Gamification <span style={{ opacity: 0.5 }}>·</span>
+                <Lottie animationData={lottieReward} style={{ width: 24, height: 24 }} /> Rewards
+              </div>
+              <p className="project-desc">
+                HomeCycle helps reduce household food waste by using AI to track product expiration dates and manage food inventory more effectively. Through gamified challenges and badges, users can collect points to redeem for vouchers, making sustainable consumption decisions both fun and rewarding.
+              </p>
+
+              <div className="tech-tags rv">
+                {["Flutter", "SQLite", "FastAPI", "TensorFlowLite", "Figma", "Git & GitHub", "Python"].map((t) => (
+                  <span key={t} className="tech-tag">{t}</span>
+                ))}
+              </div>
+
+              <div className="project-btns">
+                <a href="#contact" className="btn-outline-dark" id="project-learn-more">
+                  Learn More
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Col 3: Bento Grid */}
+          <div className="homecycle-col bento-col">
+            <div className="bento-features">
+              {FEATURES.map((f, i) => (
+                <div key={i} className="bento-card rv">
+                  <div className="bento-icon-wrapper">
+                    <Lottie animationData={f.lottie} style={{ width: 80, height: 80 }} />
+                  </div>
+                  <p>{f.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Col 4: Badges */}
+          <div className="homecycle-col badges-col">
+            <h3 className="badges-title" style={{ display: "flex", alignItems: "center", gap: "16px", justifyContent: "center" }}>
+              <Image src="/logo-bg.png" alt="HomeCycle Logo" width={48} height={48} style={{ borderRadius: "12px" }} />
+              <span style={{ color: "inherit" }}>
+                Home<span style={{ color: "var(--green)" }}>Cycle</span> Badges
+              </span>
+            </h3>
+            <div className="badges-grid rv">
+              <div className="badge-wrapper">
+                <Image src="/Eco-Starter Badge.png" alt="Eco-Starter Unlocked" fill className="badge-img unlocked" />
+                <Image src="/Eco-Starter Locked Badge.png" alt="Eco-Starter Locked" fill className="badge-img locked" />
+              </div>
+              <div className="badge-wrapper">
+                <Image src="/Eco-Hero Badge.png" alt="Eco-Hero Unlocked" fill className="badge-img unlocked" />
+                <Image src="/Eco-Hero Locked Badge.png" alt="Eco-Hero Locked" fill className="badge-img locked" />
+              </div>
+              <div className="badge-wrapper">
+                <Image src="/Eco-Champion Badge.png" alt="Eco-Champion Unlocked" fill className="badge-img unlocked" />
+                <Image src="/Eco-Champion Locked Badge.png" alt="Eco-Champion Locked" fill className="badge-img locked" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACT */}
+      <section
+        id="contact"
+        className="contact-section"
+        style={{
+          position: "relative",
+          zIndex: 20,
+          background: "var(--dark)",
+          padding: "32px",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center"
+        }}
+      >
+        <div className="rv" style={{ width: "100%", maxWidth: "600px" }}>
+          <h2 className="contact-title">
+            Let's build something meaningful<span className="hl"> together.</span>
+          </h2>
+          <p className="contact-sub">
+            Want to collaborate on eco-tech, chat about HomeCycle, or just say
+            hi? My inbox is always open.
+          </p>
+          <div className="contact-btns">
+            <a href="mailto:masadita20@gmail.com" className="btn-green-fill" id="contact-email">
+              📧 Send an Email
+            </a>
+            <a
+              href="https://www.linkedin.com/in/zidan-masadita-586173384/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost"
+              id="contact-linkedin"
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://github.com/zidanmasadita"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost"
+              id="contact-github"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="footer" style={{ position: "relative", zIndex: 20 }}>
+        <p className="footer-text">
+          Created by <strong>Zidan Masadita</strong> · HomeCycle Creator · {new Date().getFullYear()}
+        </p>
+      </footer>
+
+      {/* GLOBAL STICKERS */}
+      <GlobalStickers />
+    </>
+  );
+}
