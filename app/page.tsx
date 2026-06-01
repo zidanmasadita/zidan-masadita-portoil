@@ -400,15 +400,15 @@ export default function Home() {
         <div className="slider-track" id="discover-slider">
           {[
             { img: "/Dashboard.png", label: "HomeCycle Dashboard" },
-            { img: "/inventory.png", label: "HomeCycle Inventory" },
-            { img: "/badge.png", label: "HomeCycle Badge" },
-            { img: "/badge progression.png", label: "HomeCycle Badge Progression" },
-            { img: "/filter.png", label: "HomeCycle Filters" },
-            { img: "/detail item.png", label: "HomeCycle Item Details" },
-            { img: "/add-popup.png", label: "HomeCycle Add Item Pop Up" },
-            { img: "/item scanned.png", label: "HomeCycle Item Scanned" },
-            { img: "/shop.png", label: "HomeCycle Shop" },
-            { img: "/voucher detail.png", label: "HomeCycle Voucher Reward Detail" },
+            { img: "/Inventory.png", label: "HomeCycle Inventory" },
+            { img: "/Badge.png", label: "HomeCycle Badge" },
+            { img: "/Badge Progression.png", label: "HomeCycle Badge Progression" },
+            { img: "/Filter.png", label: "HomeCycle Filters" },
+            { img: "/Detail Item.png", label: "HomeCycle Item Details" },
+            { img: "/Add-popup.png", label: "HomeCycle Add Item Pop Up" },
+            { img: "/Item Scanned.png", label: "HomeCycle Item Scanned" },
+            { img: "/Shop.png", label: "HomeCycle Shop" },
+            { img: "/Voucher Detail.png", label: "HomeCycle Voucher Reward Detail" },
           ].map((card, i) => (
             <div key={i} className="slider-card" id={`slider-card-${i}`}>
               <Image
