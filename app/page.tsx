@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from 'next/dynamic';
+import { useTheme } from "next-themes";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
@@ -94,16 +95,60 @@ function Preloader() {
   );
 }
 
+function ThemeToggle() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <button className="theme-toggle" aria-label="Toggle Dark Mode" style={{ width: 40, height: 40 }} />;
+  }
+
+  const isDark = resolvedTheme === "dark";
+
+  return (
+    <button 
+      className="theme-toggle" 
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label="Toggle Dark Mode"
+    >
+      {isDark ? (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      ) : (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      )}
+    </button>
+  );
+}
+
 function Header({ scrolled }: { scrolled: boolean }) {
   return (
     <header className={`header ${scrolled ? "scrolled" : ""}`} id="main-header">
       <a href="#hero" className="header-logo">
         Zidan <span>Masadita</span><span>.</span>
       </a>
-      <ul className="header-nav">
-        <li><a href="#about">About</a></li>
-        <li><a href="#homecycle">HomeCycle</a></li>
-      </ul>
+      <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+        <ul className="header-nav">
+          <li><a href="#about">About</a></li>
+          <li><a href="#homecycle">HomeCycle</a></li>
+        </ul>
+        <ThemeToggle />
+      </div>
     </header>
   );
 }
@@ -247,7 +292,7 @@ function GlobalStickers() {
 function TickerBar() {
   const items = [...TICKER, ...TICKER, ...TICKER];
   return (
-    <div style={{ background: "#74a830", padding: "14px 0", overflow: "hidden" }} aria-hidden="true">
+    <div style={{ background: "#74a830", padding: "14px 0", overflow: "clip" }} aria-hidden="true">
       <div className="ticker-track" style={{ display: "flex", whiteSpace: "nowrap", animation: "tickerScroll 20s linear infinite", width: "max-content" }}>
         {items.map((t, i) => (
           <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 18, padding: "0 26px", fontWeight: 800, fontSize: ".88rem", color: "#fff", letterSpacing: "1px", textTransform: "uppercase" as const }}>
@@ -297,6 +342,39 @@ export default function Home() {
               onLeave: () => { aboutImg.style.willChange = "auto"; },
               onEnterBack: () => { aboutImg.style.willChange = "transform"; },
               onLeaveBack: () => { aboutImg.style.willChange = "auto"; },
+            }
+          }
+        );
+      }
+
+      // Pin Hero and About sections briefly
+      gsap.utils.toArray<HTMLElement>([".banner", ".about-section"]).forEach((sec) => {
+        ScrollTrigger.create({
+          trigger: sec,
+          pin: true,
+          start: "center center",
+          end: "+=25%",
+          pinSpacing: true,
+        });
+      });
+
+      // Pin Skills section and animate the grid items one by one as you scroll
+      const skillsSection = document.querySelector(".skills-section");
+      if (skillsSection) {
+        gsap.fromTo(".skill-pill", 
+          { opacity: 0, scale: 0.8 },
+          {
+            opacity: 1, 
+            scale: 1, 
+            stagger: 0.1,
+            ease: "back.out(1.4)",
+            scrollTrigger: {
+              trigger: skillsSection,
+              pin: true,
+              scrub: 1,
+              start: "center center",
+              end: () => "+=" + (window.innerHeight * 0.8), // Use absolute window height to prevent container height recalculation loop
+              pinSpacing: true,
             }
           }
         );
@@ -356,7 +434,7 @@ export default function Home() {
   return (
     <>
       {/* Global Background Layer */}
-      <div style={{ position: "fixed", inset: 0, background: "var(--cream)", zIndex: -2, pointerEvents: "none" }} />
+      <div style={{ position: "fixed", inset: 0, background: "var(--bg-primary)", zIndex: -2, pointerEvents: "none" }} />
 
       <Preloader />
       <Header scrolled={scrolled} />
@@ -387,7 +465,7 @@ export default function Home() {
 
 
       {/* ABOUT */}
-      <section id="about" className="about-section" style={{ position: "relative", zIndex: 2, background: "var(--white)" }}>
+      <section id="about" className="about-section" style={{ position: "relative", zIndex: 2, background: "var(--bg-secondary)" }}>
         <div className="about-box rv">
           <div className="about-box-visual">
             <Image
@@ -416,10 +494,10 @@ export default function Home() {
       </section>
 
       {/* SKILLS */}
-      <section className="skills-section rv" style={{ position: "relative", zIndex: 2, background: "var(--white)" }}>
+      <section className="skills-section" style={{ position: "relative", zIndex: 2, background: "var(--bg-secondary)" }}>
         <div className="skills-header">
           <h2 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px" }}>
-            <DynamicLottie src="/lottie-assets/tech.json" style={{ width: 56, height: 56 }} />
+            <DynamicLottie src="/lottie-assets/tech.json" style={{ width: 56, height: 56, borderRadius: "50%", overflow: "hidden" }} />
             <span style={{ color: "inherit" }}>
               Home<span style={{ color: "var(--green)" }}>Cycle</span> Tech Stack
             </span>
@@ -433,7 +511,7 @@ export default function Home() {
                   <DynamicLottie src={s.src} style={{ width: 36, height: 36 }} />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={s.src} alt="" width={36} height={36} style={{ objectFit: "contain" }} />
+                  <img src={s.src} alt="" width={36} height={36} style={{ objectFit: "contain", borderRadius: "50%" }} />
                 )}
               </span>
               {s.label}
@@ -591,8 +669,6 @@ export default function Home() {
         style={{
           position: "relative",
           zIndex: 20,
-          background: "var(--dark)",
-          padding: "32px",
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",

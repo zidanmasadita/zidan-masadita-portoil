@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  /* Original Palette */
   --green: #74a830;
   --green-dark: #5a8220;
   --green-light: #96cc46;
@@ -10,8 +11,35 @@
   --cream-dark: #f2ecdd;
   --dark: #1a1818;
   --white: #ffffff;
+
+  /* Semantic Theme Variables (Light Mode Default) */
+  --bg-primary: var(--cream);
+  --bg-secondary: var(--white);
+  --bg-contact: var(--dark);
+  --text-primary: var(--dark);
+  --text-secondary: #555555;
+  --text-inverse: var(--white);
+  --border-color: var(--dark);
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --bg-header-scrolled: rgba(250, 246, 237, 0.97);
+  
   --body-font: 'Nunito', 'Segoe UI', sans-serif;
   --display-font: 'Nunito', sans-serif;
+}
+
+[data-theme='dark'] {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-contact: #161616;
+  --text-primary: #f5f5f5;
+  --text-secondary: #aaaaaa;
+  --text-inverse: #f5f5f5;
+  --border-color: #333333;
+  --shadow-color: rgba(255, 255, 255, 0.08);
+  --bg-header-scrolled: rgba(18, 18, 18, 0.97);
+  --dark: #f5f5f5; /* Flip var(--dark) for general borders/lines if used directly */
+  --cream: #121212; /* Flip var(--cream) similarly */
+  --white: #1e1e1e; /* Flip var(--white) for inner boxes */
 }
 
 *,
@@ -23,14 +51,15 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: initial;
 }
 
 body {
-  background: var(--cream);
-  color: var(--dark);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--body-font);
   overflow-x: hidden;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -84,19 +113,20 @@ a {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  z-index: 500;
-  padding: 18px 32px;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all .4s ease;
+  padding: 24px 32px;
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--bg-primary);
 }
 
 .header.scrolled {
   /* Use opaque background instead of backdrop-filter: blur — Chrome re-composites
      the blur area on every scroll frame which is very expensive */
-  background: rgba(250, 246, 237, 0.97);
+  background: var(--bg-header-scrolled);
   box-shadow: 0 2px 20px rgba(0, 0, 0, .06);
   padding: 12px 32px;
 }
@@ -105,7 +135,7 @@ a {
   font-family: var(--display-font);
   font-weight: 900;
   font-size: 1.5rem;
-  color: var(--dark);
+  color: var(--text-primary);
   z-index: 10;
 }
 
@@ -123,12 +153,32 @@ a {
 .header-nav a {
   font-weight: 700;
   font-size: .9rem;
-  color: var(--dark);
+  color: var(--text-primary);
   transition: color .2s;
 }
 
 .header-nav a:hover {
   color: var(--green);
+}
+
+.theme-toggle {
+  background: none;
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  transform: scale(1.05);
 }
 
 .header-shop-btn {
@@ -212,7 +262,7 @@ a {
 .banner-subtitle {
   font-size: 1.15rem;
   line-height: 1.7;
-  color: #6b6b6b;
+  color: var(--text-secondary);
   max-width: 500px;
   margin: 0 auto 36px;
   font-weight: 600;
@@ -293,6 +343,16 @@ a {
   overflow: hidden;
   border: 3px solid var(--dark);
   transition: transform .3s;
+  cursor: pointer;
+}
+
+.bento-card {
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  padding: 24px;
+  border: 3px solid var(--dark);
+  box-shadow: 6px 6px 0 var(--dark);
+  display: flex;
   cursor: pointer;
 }
 
@@ -412,7 +472,7 @@ a {
 .about-box-content p {
   font-size: 1.15rem;
   line-height: 1.7;
-  color: rgba(0, 0, 0, 0.7);
+  color: var(--text-secondary);
   margin-bottom: 24px;
 }
 
@@ -462,13 +522,13 @@ a {
 .project-eyebrow {
   display: inline-block;
   background: var(--yellow);
-  color: var(--dark);
+  color: #1a1818;
   font-weight: 800;
-  font-size: .78rem;
-  padding: 6px 18px;
-  border-radius: 40px;
-  letter-spacing: 1.5px;
+  font-size: .85rem;
+  padding: 6px 14px;
+  border-radius: 30px;
   text-transform: uppercase;
+  letter-spacing: 1px;
   margin-bottom: 16px;
   border: 2px solid var(--dark);
 }
@@ -566,14 +626,14 @@ a {
 .project-tagline {
   font-weight: 700;
   font-size: 1.05rem;
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 20px;
 }
 
 .project-desc {
   font-size: 1.05rem;
   line-height: 1.85;
-  color: #555;
+  color: var(--text-secondary);
   margin-bottom: 28px;
   font-weight: 500;
 }
@@ -586,7 +646,7 @@ a {
 }
 
 .bento-card {
-  background: var(--white);
+  background: #ffffff;
   border: 2.5px solid var(--dark);
   border-radius: 20px;
   padding: 24px 16px;
@@ -600,7 +660,7 @@ a {
 
 .bento-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 24px var(--shadow-color);
 }
 
 .bento-icon-wrapper {
@@ -613,7 +673,7 @@ a {
 .bento-card p {
   font-size: .92rem;
   font-weight: 600;
-  color: var(--dark);
+  color: #1a1818;
   line-height: 1.45;
   margin: 0;
 }
@@ -698,13 +758,13 @@ a {
 }
 
 .tech-tag {
-  background: var(--white);
-  border: 2px solid var(--dark);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
   padding: 5px 14px 5px 8px;
   border-radius: 30px;
   font-weight: 700;
   font-size: .8rem;
-  color: var(--dark);
+  color: var(--text-primary);
   transition: all .2s;
   display: inline-flex;
   align-items: center;
@@ -719,7 +779,7 @@ a {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 3px;
+  border-radius: 50%;
 }
 
 .tech-tag:hover {
@@ -813,13 +873,13 @@ a {
 }
 
 .skill-pill {
-  background: var(--cream);
-  border: 2.5px solid var(--dark);
+  background: var(--bg-primary);
+  border: 2.5px solid var(--border-color);
   padding: 8px 20px 8px 10px;
   border-radius: 40px;
   font-weight: 700;
   font-size: .92rem;
-  color: var(--dark);
+  color: var(--text-primary);
   transition: all .25s;
   cursor: default;
   display: inline-flex;
@@ -835,7 +895,7 @@ a {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 50%;
 }
 
 .skill-pill-icon img {
@@ -853,8 +913,8 @@ a {
 
 .contact-section {
   padding: 100px 32px;
-  background: var(--dark);
-  color: var(--white);
+  background: var(--bg-contact);
+  color: var(--text-inverse);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -1048,4 +1108,9 @@ a {
   .banner-sticker {
     transform: scale(.6) !important;
   }
+}
+
+.snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }

@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 import LenisProvider from "../components/LenisProvider";
+import { ThemeProvider } from "../components/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -24,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -33,8 +34,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full">
-        <LenisProvider>{children}</LenisProvider>
+      <body>
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+          <LenisProvider>{children}</LenisProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
