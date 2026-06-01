@@ -20,6 +20,7 @@
   --text-secondary: #555555;
   --text-inverse: var(--white);
   --border-color: var(--dark);
+  --bento-shadow: var(--dark);
   --shadow-color: rgba(0, 0, 0, 0.06);
   --bg-header-scrolled: rgba(250, 246, 237, 0.97);
   
@@ -35,6 +36,7 @@
   --text-secondary: #aaaaaa;
   --text-inverse: #f5f5f5;
   --border-color: #333333;
+  --bento-shadow: #ffffff;
   --shadow-color: rgba(255, 255, 255, 0.08);
   --bg-header-scrolled: rgba(18, 18, 18, 0.97);
   --dark: #f5f5f5; /* Flip var(--dark) for general borders/lines if used directly */
@@ -350,8 +352,8 @@ a {
   background: var(--bg-secondary);
   border-radius: 20px;
   padding: 24px;
-  border: 3px solid var(--dark);
-  box-shadow: 6px 6px 0 var(--dark);
+  border: 3px solid var(--border-color);
+  box-shadow: 6px 6px 0 var(--bento-shadow);
   display: flex;
   cursor: pointer;
 }
@@ -646,7 +648,7 @@ a {
 }
 
 .bento-card {
-  background: #ffffff;
+  background: var(--white);
   border: 2.5px solid var(--dark);
   border-radius: 20px;
   padding: 24px 16px;
@@ -673,7 +675,7 @@ a {
 .bento-card p {
   font-size: .92rem;
   font-weight: 600;
-  color: #1a1818;
+  color: var(--dark);
   line-height: 1.45;
   margin: 0;
 }
@@ -974,7 +976,7 @@ a {
 
 .btn-green-fill {
   background: var(--green);
-  color: var(--white);
+  color: #ffffff;
   padding: 14px 30px;
   border-radius: 40px;
   font-weight: 800;
@@ -1011,7 +1013,7 @@ a {
 
 .btn-ghost:hover {
   border-color: rgba(255, 255, 255, .6);
-  color: var(--white);
+  color: #ffffff;
   transform: translateY(-2px);
 }
 

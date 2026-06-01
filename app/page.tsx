@@ -511,7 +511,7 @@ export default function Home() {
                   <DynamicLottie src={s.src} style={{ width: 36, height: 36 }} />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={s.src} alt="" width={36} height={36} style={{ objectFit: "contain", borderRadius: "50%" }} />
+                  <img src={s.src} alt="" width={36} height={36} style={{ objectFit: "contain", borderRadius: "50%" }} loading="eager" />
                 )}
               </span>
               {s.label}
@@ -606,7 +606,7 @@ export default function Home() {
                         <DynamicLottie src={s.src} style={{ width: 24, height: 24 }} />
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={s.src} alt="" width={24} height={24} style={{ objectFit: "contain" }} />
+                        <img src={s.src} alt="" width={24} height={24} style={{ objectFit: "contain" }} loading="eager" />
                       )}
                     </span>
                     {s.label}
