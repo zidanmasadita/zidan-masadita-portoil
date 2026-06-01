@@ -94,9 +94,9 @@ a {
 }
 
 .header.scrolled {
-  background: rgba(250, 246, 237, .92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  /* Use opaque background instead of backdrop-filter: blur — Chrome re-composites
+     the blur area on every scroll frame which is very expensive */
+  background: rgba(250, 246, 237, 0.97);
   box-shadow: 0 2px 20px rgba(0, 0, 0, .06);
   padding: 12px 32px;
 }
@@ -168,7 +168,8 @@ a {
   z-index: 3;
   pointer-events: none;
   user-select: none;
-  will-change: transform;
+  /* will-change is applied dynamically via JS only during active scroll
+     to avoid Chrome promoting all 18 stickers to GPU layers upfront */
   filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, .12));
 }
 
@@ -348,6 +349,9 @@ a {
   border-radius: 50%;
   z-index: -1;
   border: 3px solid var(--green);
+  /* will-change isolates this animation to GPU compositor so it
+     doesn't trigger repaints on surrounding content */
+  will-change: transform;
   animation: float 6s ease-in-out infinite;
 }
 
@@ -385,8 +389,9 @@ a {
   width: 100%;
   height: auto;
   max-width: 420px;
-  will-change: transform;
-  filter: drop-shadow(0px 0px 8px white) drop-shadow(8px 12px 16px rgba(0, 0, 0, 0.25));
+  /* will-change is applied dynamically by GSAP ScrollTrigger callbacks only
+     while scrolling — avoids CPU/GPU round-trip conflict with filter */
+  filter: drop-shadow(6px 10px 12px rgba(0, 0, 0, 0.2));
 }
 
 .about-box-content {
@@ -695,12 +700,26 @@ a {
 .tech-tag {
   background: var(--white);
   border: 2px solid var(--dark);
-  padding: 6px 16px;
+  padding: 5px 14px 5px 8px;
   border-radius: 30px;
   font-weight: 700;
   font-size: .8rem;
   color: var(--dark);
   transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tech-tag-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 3px;
 }
 
 .tech-tag:hover {
@@ -796,13 +815,33 @@ a {
 .skill-pill {
   background: var(--cream);
   border: 2.5px solid var(--dark);
-  padding: 10px 24px;
+  padding: 8px 20px 8px 10px;
   border-radius: 40px;
   font-weight: 700;
   font-size: .92rem;
   color: var(--dark);
   transition: all .25s;
   cursor: default;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skill-pill-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.skill-pill-icon img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .skill-pill:hover {
@@ -861,6 +900,16 @@ a {
   justify-content: center;
   gap: 14px;
   flex-wrap: wrap;
+}
+
+.contact-btn-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .btn-green-fill {

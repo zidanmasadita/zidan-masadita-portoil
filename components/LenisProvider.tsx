@@ -13,7 +13,9 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     
     // Sync Lenis with GSAP's ticker to eliminate jitter on pinned ScrollTriggers
     gsap.ticker.add(update);
-    gsap.ticker.lagSmoothing(0);
+    // lagSmoothing(0) disables frame-skip protection — Chrome needs this to
+    // avoid cascading jank when it misses a frame. Use the recommended default.
+    gsap.ticker.lagSmoothing(250, 30);
     
     return () => {
       gsap.ticker.remove(update);

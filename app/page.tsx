@@ -8,13 +8,21 @@ import dynamic from 'next/dynamic';
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
-import lottieAi from "../public/lottie-assets/ai.json";
-import lottieInventory from "../public/lottie-assets/inventory.json";
-import lottieRecycle from "../public/lottie-assets/recycle.json";
-import lottieGames from "../public/lottie-assets/games.json";
-import lottieReward from "../public/lottie-assets/reward.json";
-import lottieGlobe from "../public/lottie-assets/globe.json";
-import lottieTech from "../public/lottie-assets/tech.json";
+// Lazily fetch Lottie JSON from /public — avoids bundling heavy JSON into the
+// main JS chunk and forces Chrome's V8 to parse it async, not at page load.
+function DynamicLottie({ src, style }: { src: string; style?: React.CSSProperties }) {
+  const [animData, setAnimData] = useState<object | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(src)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setAnimData(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [src]);
+  if (!animData) return <div style={{ width: style?.width, height: style?.height }} />;
+  return <Lottie animationData={animData} style={style} />;
+}
 import zidanBg from "../public/zidan-bg.png";
 
 if (typeof window !== "undefined") {
@@ -50,17 +58,22 @@ const TICKER = [
 ];
 
 const SKILLS = [
-  "Flutter", "Figma", "SQLite",
-  "Git & GitHub", "TensorFlow Lite", "FastAPI", "Python"
+  { label: "Flutter",        icon: "lottie", src: "/lottie-assets/flutter.json" },
+  { label: "Figma",          icon: "lottie", src: "/lottie-assets/figma.json"   },
+  { label: "SQLite",         icon: "img",    src: "/lottie-assets/sqlite.svg"   },
+  { label: "Git & GitHub",   icon: "lottie", src: "/lottie-assets/github.json"  },
+  { label: "TensorFlow Lite",icon: "img",    src: "/lottie-assets/tflite.png"   },
+  { label: "FastAPI",        icon: "img",    src: "/lottie-assets/fastapi.svg"  },
+  { label: "Python",         icon: "lottie", src: "/lottie-assets/python.json"  },
 ];
 
 const FEATURES = [
-  { lottie: lottieAi, text: "Use AI to automatically track product expiration dates" },
-  { lottie: lottieInventory, text: "Manage your household food inventory more effectively" },
-  { lottie: lottieRecycle, text: "Reduce household food waste with proactive tracking" },
-  { lottie: lottieGames, text: "Complete gamified challenges to earn unique badges" },
-  { lottie: lottieReward, text: "Collect points and redeem them for vouchers" },
-  { lottie: lottieGlobe, text: "Make more sustainable consumption decisions every day" },
+  { lottie: "/lottie-assets/ai.json", text: "Use AI to automatically track product expiration dates" },
+  { lottie: "/lottie-assets/inventory.json", text: "Manage your household food inventory more effectively" },
+  { lottie: "/lottie-assets/recycle.json", text: "Reduce household food waste with proactive tracking" },
+  { lottie: "/lottie-assets/games.json", text: "Complete gamified challenges to earn unique badges" },
+  { lottie: "/lottie-assets/reward.json", text: "Collect points and redeem them for vouchers" },
+  { lottie: "/lottie-assets/globe.json", text: "Make more sustainable consumption decisions every day" },
 ];
 
 function Preloader() {
@@ -101,6 +114,19 @@ function BannerStickers() {
   const smallStickers = STICKERS.filter(s => s.w < 180);
 
   useEffect(() => {
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const enableWillChange = () => {
+      refs.current.forEach((el) => {
+        if (el) el.style.willChange = 'transform';
+      });
+    };
+    const disableWillChange = () => {
+      refs.current.forEach((el) => {
+        if (el) el.style.willChange = 'auto';
+      });
+    };
+
     let ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: ".banner",
@@ -108,6 +134,10 @@ function BannerStickers() {
         end: "bottom top",
         scrub: true,
         onUpdate: (self) => {
+          enableWillChange();
+          if (idleTimer) clearTimeout(idleTimer);
+          idleTimer = setTimeout(disableWillChange, 200);
+
           const p = self.progress;
           refs.current.forEach((el, i) => {
             if (!el) return;
@@ -120,8 +150,12 @@ function BannerStickers() {
       });
     });
 
-    return () => ctx.revert();
+    return () => {
+      if (idleTimer) clearTimeout(idleTimer);
+      ctx.revert();
+    };
   }, [smallStickers]);
+
 
   return (
     <>
@@ -185,6 +219,9 @@ function GlobalStickers() {
             width: `${s.w}px`,
             left: `${s.l}%`,
             top: `${s.t}%`,
+            // Offset rotation applied to wrapper so it doesn't conflict
+            // with the CSS spin animation's own transform on the img
+            transform: `rotate(${s.r}deg)`,
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -196,7 +233,6 @@ function GlobalStickers() {
               position: "relative",
               width: "100%",
               height: "auto",
-              transform: `rotate(${s.r}deg)`, // Initial offset rotation
             }}
             loading="lazy"
             draggable={false}
@@ -243,21 +279,28 @@ export default function Home() {
         { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.4 }
       );
 
-      gsap.fromTo(".about-parallax-img",
-        { y: -150, rotation: -12, scale: 0.85 },
-        {
-          y: 150,
-          rotation: 8,
-          scale: 1.15,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".about-section",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1.2
+      const aboutImg = document.querySelector(".about-parallax-img") as HTMLElement | null;
+      if (aboutImg) {
+        gsap.fromTo(aboutImg,
+          { y: -60 },
+          {
+            y: 60,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".about-section",
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1.2,
+              // Apply will-change only while the section is visible to avoid
+              // the static will-change + filter GPU/CPU conflict in Chrome
+              onEnter: () => { aboutImg.style.willChange = "transform"; },
+              onLeave: () => { aboutImg.style.willChange = "auto"; },
+              onEnterBack: () => { aboutImg.style.willChange = "transform"; },
+              onLeaveBack: () => { aboutImg.style.willChange = "auto"; },
+            }
           }
-        }
-      );
+        );
+      }
       const discoverTrack = document.querySelector(".slider-track") as HTMLElement;
       if (discoverTrack) {
         gsap.to(discoverTrack, {
@@ -376,7 +419,7 @@ export default function Home() {
       <section className="skills-section rv" style={{ position: "relative", zIndex: 2, background: "var(--white)" }}>
         <div className="skills-header">
           <h2 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px" }}>
-            <Lottie animationData={lottieTech} style={{ width: 56, height: 56 }} />
+            <DynamicLottie src="/lottie-assets/tech.json" style={{ width: 56, height: 56 }} />
             <span style={{ color: "inherit" }}>
               Home<span style={{ color: "var(--green)" }}>Cycle</span> Tech Stack
             </span>
@@ -384,7 +427,17 @@ export default function Home() {
         </div>
         <div className="skills-grid">
           {SKILLS.map((s) => (
-            <span key={s} className="skill-pill">{s}</span>
+            <span key={s.label} className="skill-pill">
+              <span className="skill-pill-icon">
+                {s.icon === "lottie" ? (
+                  <DynamicLottie src={s.src} style={{ width: 36, height: 36 }} />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={s.src} alt="" width={36} height={36} style={{ objectFit: "contain" }} />
+                )}
+              </span>
+              {s.label}
+            </span>
           ))}
         </div>
       </section>
@@ -459,17 +512,27 @@ export default function Home() {
                 Home<span style={{ color: "var(--green)" }}>Cycle</span>
               </span></h2>
               <div className="project-tagline" style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                <Lottie animationData={lottieAi} style={{ width: 24, height: 24 }} /> AI Tracking <span style={{ opacity: 0.5 }}>·</span>
-                <Lottie animationData={lottieGames} style={{ width: 24, height: 24 }} /> Gamification <span style={{ opacity: 0.5 }}>·</span>
-                <Lottie animationData={lottieReward} style={{ width: 24, height: 24 }} /> Rewards
+                <DynamicLottie src="/lottie-assets/ai.json" style={{ width: 24, height: 24 }} /> AI Tracking <span style={{ opacity: 0.5 }}>·</span>
+                <DynamicLottie src="/lottie-assets/games.json" style={{ width: 24, height: 24 }} /> Gamification <span style={{ opacity: 0.5 }}>·</span>
+                <DynamicLottie src="/lottie-assets/reward.json" style={{ width: 24, height: 24 }} /> Rewards
               </div>
               <p className="project-desc">
                 HomeCycle helps reduce household food waste by using AI to track product expiration dates and manage food inventory more effectively. Through gamified challenges and badges, users can collect points to redeem for vouchers, making sustainable consumption decisions both fun and rewarding.
               </p>
 
               <div className="tech-tags rv">
-                {["Flutter", "SQLite", "FastAPI", "TensorFlowLite", "Figma", "Git & GitHub", "Python"].map((t) => (
-                  <span key={t} className="tech-tag">{t}</span>
+                {SKILLS.map((s) => (
+                  <span key={s.label} className="tech-tag">
+                    <span className="tech-tag-icon">
+                      {s.icon === "lottie" ? (
+                        <DynamicLottie src={s.src} style={{ width: 24, height: 24 }} />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={s.src} alt="" width={24} height={24} style={{ objectFit: "contain" }} />
+                      )}
+                    </span>
+                    {s.label}
+                  </span>
                 ))}
               </div>
 
@@ -487,7 +550,7 @@ export default function Home() {
               {FEATURES.map((f, i) => (
                 <div key={i} className="bento-card rv">
                   <div className="bento-icon-wrapper">
-                    <Lottie animationData={f.lottie} style={{ width: 80, height: 80 }} />
+                    <DynamicLottie src={f.lottie} style={{ width: 80, height: 80 }} />
                   </div>
                   <p>{f.text}</p>
                 </div>
@@ -548,7 +611,10 @@ export default function Home() {
           </p>
           <div className="contact-btns">
             <a href="mailto:masadita20@gmail.com" className="btn-green-fill" id="contact-email">
-              📧 Send an Email
+              <span className="contact-btn-icon">
+                <DynamicLottie src="/lottie-assets/gmail.json" style={{ width: 28, height: 28 }} />
+              </span>
+              Send an Email
             </a>
             <a
               href="https://www.linkedin.com/in/zidan-masadita-586173384/"
@@ -557,6 +623,9 @@ export default function Home() {
               className="btn-ghost"
               id="contact-linkedin"
             >
+              <span className="contact-btn-icon">
+                <DynamicLottie src="/lottie-assets/linkedin.json" style={{ width: 28, height: 28 }} />
+              </span>
               LinkedIn
             </a>
             <a
@@ -566,6 +635,9 @@ export default function Home() {
               className="btn-ghost"
               id="contact-github"
             >
+              <span className="contact-btn-icon">
+                <DynamicLottie src="/lottie-assets/github.json" style={{ width: 28, height: 28 }} />
+              </span>
               GitHub
             </a>
           </div>
