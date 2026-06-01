@@ -35,7 +35,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem>
           <LenisProvider>{children}</LenisProvider>
         </ThemeProvider>
       </body>
