@@ -14,6 +14,24 @@ export const metadata: Metadata = {
     "eco app",
     "food waste tracker",
   ],
+  openGraph: {
+    title: "Portfolio | Zidan Masadita - Mobile Developer",
+    description: "Hi! I'm Zidan Masadita, a passionate mobile developer building HomeCycle.",
+    images: [
+      {
+        url: "/thumbnail-porto.png",
+        width: 1200,
+        height: 630,
+        alt: "Zidan Masadita Portfolio Thumbnail",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Portfolio | Zidan Masadita",
+    description: "Hi! I'm Zidan Masadita, a passionate mobile developer building HomeCycle.",
+    images: ["/thumbnail-porto.png"],
+  },
 };
 
 import LenisProvider from "../components/LenisProvider";
