@@ -379,6 +379,31 @@ export default function Home() {
           }
         );
       }
+
+      // Case Study Bento Animation Sequence
+      const caseStudySection = document.querySelector(".case-study-section");
+      
+      if (caseStudySection) {
+        gsap.fromTo(".case-rv", 
+          { opacity: 0, scale: 0.9, y: 30 },
+          { 
+            opacity: 1, 
+            scale: 1, 
+            y: 0, 
+            stagger: 0.1, 
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: ".case-study-section",
+              pin: true,
+              scrub: 1,
+              start: "center center",
+              end: () => `+=${window.innerHeight * 0.8}`,
+              pinSpacing: true,
+            }
+          }
+        );
+      }
+
       const discoverTrack = document.querySelector(".slider-track") as HTMLElement;
       if (discoverTrack) {
         gsap.to(discoverTrack, {
@@ -517,6 +542,74 @@ export default function Home() {
               {s.label}
             </span>
           ))}
+        </div>
+      </section>
+
+      {/* CASE STUDY SECTION */}
+      <section className="case-study-section">
+        <div className="case-study-header">
+          <h2 style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--text-primary)" }}>
+            The Research <span style={{ color: "var(--green)" }}>Behind It</span>
+          </h2>
+          <p style={{ color: "var(--text-secondary)", marginTop: "12px", fontSize: "1.1rem" }}>
+            Key insights shaping HomeCycle's user experience.
+          </p>
+        </div>
+
+        <div className="case-study-content">
+          <div className="case-bento-grid">
+            {/* Row 1: 8:4 ratio */}
+            <div className="case-bento-card span-8 case-rv">
+              <div className="case-card-author">By Jimmy</div>
+              <h3 className="case-card-title">The Reality of Food Waste</h3>
+              <p className="case-card-content">
+                Based on the UNEP Food Waste Index Report 2024, the average individual wastes 70-80kg of food per year at home. The biggest waste happens domestically due to poor consumption behavior, shopping planning, and inventory management.
+              </p>
+            </div>
+
+            <div className="case-bento-card span-4 case-rv">
+              <div className="case-card-author">By Siti Srihartina Faujiah</div>
+              <h3 className="case-card-title">The Expiry Disconnect</h3>
+              <p className="case-card-content">
+                Users check expiry dates when buying, but forget them once stored. HomeCycle acts as a proactive reminder before items spoil.
+              </p>
+            </div>
+
+            {/* Row 2: 3:3:6 ratio */}
+            <div className="case-bento-card span-3 case-rv">
+              <div className="case-card-author">By Kharis Ogotan</div>
+              <h3 className="case-card-title">A "Second Brain"</h3>
+              <p className="case-card-content">
+                Food waste is a memory failure. HomeCycle sends automated notifications (e.g., "2 days left for chicken!").
+              </p>
+            </div>
+
+            <div className="case-bento-card span-3 case-rv">
+              <div className="case-card-author">By Zidan Masadita</div>
+              <h3 className="case-card-title">AI Simplicity</h3>
+              <p className="case-card-content">
+                Clutter causes stress. HomeCycle uses an instant AI camera scanner, eliminating manual data entry.
+              </p>
+            </div>
+
+            <div className="case-bento-card span-6 case-rv">
+              <div className="case-card-author">By Rishanda Faliha Sahla</div>
+              <h3 className="case-card-title">Changing Behaviors</h3>
+              <p className="case-card-content">
+                Overbuying and lack of planning are root causes. HomeCycle aims to fundamentally shift household consumption patterns towards sustainable, planned management by addressing environmental and economic impacts.
+              </p>
+            </div>
+          </div>
+
+          {/* Problem Solving Side Card */}
+          <div className="problem-solving-side case-rv">
+            <div className="case-bento-card" style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "32px" }}>
+              <h3 className="case-card-title" style={{ fontSize: "1.75rem", marginBottom: "16px", color: "var(--green)" }}>The Solution</h3>
+              <p className="case-card-content" style={{ fontSize: "1rem", fontWeight: 500, margin: 0, lineHeight: 1.6 }}>
+                <span style={{ color: "var(--green)", fontWeight: 800 }}>HomeCycle</span> is an AI-based household management app designed to help young professionals and urban families tackle food waste, overbuying, and clutter caused by a lack of structured inventory management systems. Through food shelf-life prediction, anti-overbuy shopping lists, zero-waste recipe recommendations, AI-based used item classification, and a sustainable reward system, HomeCycle offers a <span style={{ color: "var(--green)", fontWeight: 800 }}>preventive and personalized solution</span> that not only reduces waste but also builds smarter, eco-friendly consumption habits compared to solutions that only focus on waste management after the fact.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
